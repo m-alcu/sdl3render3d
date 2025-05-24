@@ -10,6 +10,8 @@
                 "src\\main.cpp",
                 "src\\backgrounds\\backgroundFactory.cpp",
                 "src\\backgrounds\\desert.cpp",
+                "src\\backgrounds\\imagepng.cpp",
+                "src\\vendor\\lodepng\\lodepng.cpp",
                 "src\\vendor\\imgui\\imgui_impl_sdlrenderer3.cpp",
                 "src\\vendor\\imgui\\imgui_tables.cpp",
                 "src\\vendor\\imgui\\imgui_widgets.cpp",

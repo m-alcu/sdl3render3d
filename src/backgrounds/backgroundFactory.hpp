@@ -3,6 +3,7 @@
 #include <memory>
 #include "Background.hpp"
 #include "Desert.hpp"
+#include "Imagepng.hpp"
 
 enum class BackgroundType {
     DESERT,

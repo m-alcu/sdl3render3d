@@ -5,7 +5,7 @@ std::unique_ptr<Background> BackgroundFactory::createBackground(BackgroundType t
         case BackgroundType::DESERT:
             return std::make_unique<Desert>();
         case BackgroundType::IMAGE_PNG:
-            return std::make_unique<Desert>();
+            return std::make_unique<Imagepng>();
         default:
             return nullptr;
     }
