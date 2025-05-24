@@ -1,0 +1,39 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "SDL3",
+            "command": "C:/msys64/ucrt64/bin/g++.exe",
+            "args": [
+                "-g",
+                "main.cpp",
+                "backgrounds\\backgroundFactory.cpp",
+                "backgrounds\\desert.cpp",
+                "imgui_impl_sdlrenderer3.cpp",
+                "imgui_tables.cpp",
+                "imgui_widgets.cpp",
+                "imgui.cpp",
+                "imgui_draw.cpp",
+                "imgui_impl_sdl3.cpp",
+                "-o",
+                "build\\example_sdl3_sdlrenderer3.exe",
+                "-IC:/tools/SDL3-3.2.14/x86_64-w64-mingw32/include",
+                "-LC:/tools/SDL3-3.2.14/x86_64-w64-mingw32/lib",
+                "-lmingw32",
+                "-lopengl32",
+                "-lSDL3",
+                "-mwindows",
+                "-fopenmp",
+                "-std=c++20"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": "build"
+        }
+    ]
+}
