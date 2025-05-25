@@ -77,7 +77,7 @@ void Cube::loadFaces() {
     // Create and store the material
     slib::material material{};
 
-    material.Ka = { properties.k_a * 0xff, properties.k_a * 0xff, properties.k_a * 0xff };
+    material.Ka = { properties.k_a * 0x00, properties.k_a * 0x00, properties.k_a * 0x00 };
     material.Kd = { properties.k_d * 0xff, properties.k_d * 0xff, properties.k_d * 0xff };
     material.Ks = { properties.k_s * 0xff, properties.k_s * 0xff, properties.k_s * 0xff };
     material.Ns = properties.shininess;

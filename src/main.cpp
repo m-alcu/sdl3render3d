@@ -113,8 +113,8 @@ int main(int, char**)
     auto background = BackgroundFactory::createBackground(backgroundType);
     background->draw(back, height, width);
 
-    float mouseSensitivity = 0.1f;
-    float cameraSpeed = 100.0f;
+    static float mouseSensitivity = 1.0f;
+    static float cameraSpeed = 2.0f;
 
     // Main loop
     bool done = false;
@@ -144,16 +144,16 @@ int main(int, char**)
 
                 switch (keycode) {
                     case SDLK_LEFT:
-                        scene.camera.yaw += 1;
+                        scene.camera.yaw += mouseSensitivity;
                         break;
                     case SDLK_RIGHT:
-                        scene.camera.yaw -= 1;
+                        scene.camera.yaw -= mouseSensitivity;
                         break;
                     case SDLK_UP:
-                        scene.camera.pitch -= 1;
+                        scene.camera.pitch -= mouseSensitivity;
                         break;
                     case SDLK_DOWN:
-                        scene.camera.pitch += 1;
+                        scene.camera.pitch += mouseSensitivity;
                         break;
                     case SDLK_Q:
                         scene.camera.pos -= scene.camera.forward * cameraSpeed;
@@ -191,6 +191,8 @@ int main(int, char**)
             ImGui::Begin("3d params");                         
             ImGui::SliderFloat("x angle", &incXangle, 0.0f, 1.0f); 
             ImGui::SliderFloat("y angle", &incYangle, 0.0f, 1.0f); 
+            ImGui::SliderFloat("camera speed", &cameraSpeed, 0.1f, 10.0f); 
+            ImGui::SliderFloat("pitch/yaw sensitivity", &mouseSensitivity, 0.0f, 10.0f);
 
             // Render combo box in your ImGui window code
             int currentShading = static_cast<int>(scene.solids[0]->shading);
