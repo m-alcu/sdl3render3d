@@ -95,7 +95,6 @@ int main(int, char**)
 
     // Our state
     bool show_another_window = false;
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     Scene scene({height, width});
     scene.lux = smath::normalize(slib::vec3{0, 1, 1});;
@@ -138,6 +137,34 @@ int main(int, char**)
         while (SDL_PollEvent(&event))
         {
             ImGui_ImplSDL3_ProcessEvent(&event);
+
+            if (event.type == SDL_EVENT_KEY_DOWN) {
+                SDL_KeyboardEvent* key_event = (SDL_KeyboardEvent*)&event;
+                SDL_Keycode keycode = key_event->key;
+
+                switch (keycode) {
+                    case SDLK_LEFT:
+                        scene.camera.yaw += 1;
+                        break;
+                    case SDLK_RIGHT:
+                        scene.camera.yaw -= 1;
+                        break;
+                    case SDLK_UP:
+                        scene.camera.pitch -= 1;
+                        break;
+                    case SDLK_DOWN:
+                        scene.camera.pitch += 1;
+                        break;
+                    case SDLK_Q:
+                        scene.camera.pos -= scene.camera.forward * cameraSpeed;
+                        break;
+                    case SDLK_A:
+                        scene.camera.pos += scene.camera.forward * cameraSpeed;
+                        break;
+                }
+            }
+
+
             if (event.type == SDL_EVENT_QUIT)
                 done = true;
             if (event.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED && event.window.windowID == SDL_GetWindowID(window))
@@ -157,18 +184,21 @@ int main(int, char**)
         ImGui::NewFrame();
         ImGui::SetNextWindowBgAlpha(0.3f);
 
+        static float incXangle = 0.5f;
+        static float incYangle = 1.0f;
         // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
         {
             static float f = 0.0f;
             static int counter = 0;
+
 
             ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
 
             ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
             ImGui::Checkbox("Another Window", &show_another_window);
 
-            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-            ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+            ImGui::SliderFloat("x angle", &incXangle, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+            ImGui::SliderFloat("y angle", &incYangle, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
 
             if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
                 counter++;
@@ -193,9 +223,6 @@ int main(int, char**)
 
         // Rendering
         ImGui::Render();
-        //SDL_SetRenderScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
-        //SDL_SetRenderDrawColorFloat(renderer, clear_color.x, clear_color.y, clear_color.z, clear_color.w);
-        //SDL_RenderClear(renderer);
 
         SDL_Texture* tex = SDL_CreateTextureFromSurface(renderer, scene.sdlSurface);
         if (!tex) {
@@ -208,6 +235,9 @@ int main(int, char**)
         SDL_RenderPresent(renderer);
 
         SDL_DestroyTexture(tex);
+
+        scene.solids[0]->position.xAngle += incXangle;
+        scene.solids[0]->position.yAngle += incYangle;
     }
 #ifdef __EMSCRIPTEN__
     EMSCRIPTEN_MAINLOOP_END;
