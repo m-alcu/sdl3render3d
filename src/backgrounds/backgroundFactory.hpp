@@ -10,6 +10,11 @@ enum class BackgroundType {
     IMAGE_PNG
 };
 
+static const char* backgroundNames[] = {
+    "Desert",
+    "Image PNG"
+};
+
 class BackgroundFactory {
 public:
     static std::unique_ptr<Background> createBackground(BackgroundType type);

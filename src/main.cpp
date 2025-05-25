@@ -93,8 +93,6 @@ int main(int, char**)
     //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
     //IM_ASSERT(font != nullptr);
 
-    // Our state
-    bool show_another_window = false;
 
     Scene scene({height, width});
     scene.lux = smath::normalize(slib::vec3{0, 1, 1});;
@@ -108,9 +106,11 @@ int main(int, char**)
     float zFar  = 10000.0f; // Far plane distance
     float viewAngle = 45.0f; // Field of view angle in degrees    
 
+    BackgroundType backgroundType = BackgroundType::DESERT; // Default background type
+
     // Backgroud
     Uint32* back = new Uint32[width * height];
-    auto background = BackgroundFactory::createBackground(BackgroundType::DESERT);
+    auto background = BackgroundFactory::createBackground(backgroundType);
     background->draw(back, height, width);
 
     float mouseSensitivity = 0.1f;
@@ -188,42 +188,26 @@ int main(int, char**)
         static float incYangle = 1.0f;
         // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
         {
-            static float f = 0.0f;
-            static int counter = 0;
-
-
-            ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-            ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-            ImGui::Checkbox("Another Window", &show_another_window);
-
-            ImGui::SliderFloat("x angle", &incXangle, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-            ImGui::SliderFloat("y angle", &incYangle, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-
+            ImGui::Begin("3d params");                         
+            ImGui::SliderFloat("x angle", &incXangle, 0.0f, 1.0f); 
+            ImGui::SliderFloat("y angle", &incYangle, 0.0f, 1.0f); 
 
             // Render combo box in your ImGui window code
             int currentShading = static_cast<int>(scene.solids[0]->shading);
             if (ImGui::Combo("Shading", &currentShading, shadingNames, IM_ARRAYSIZE(shadingNames))) {
                 // Update the enum value when selection changes
                 scene.solids[0]->shading = static_cast<Shading>(currentShading);
-            }            
-
-            if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-                counter++;
-            ImGui::SameLine();
-            ImGui::Text("counter = %d", counter);
+            }
+            
+            int currentBackground = static_cast<int>(backgroundType);
+            if (ImGui::Combo("Background", &currentBackground, backgroundNames, IM_ARRAYSIZE(backgroundNames))) {
+                // Update the enum value when selection changes
+                backgroundType = static_cast<BackgroundType>(currentBackground);
+                auto background = BackgroundFactory::createBackground(backgroundType);
+                background->draw(back, height, width);
+            } 
 
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-            ImGui::End();
-        }
-
-        // 3. Show another simple window.
-        if (show_another_window)
-        {
-            ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-            ImGui::Text("Hello from another window!");
-            if (ImGui::Button("Close Me"))
-                show_another_window = false;
             ImGui::End();
         }
 
