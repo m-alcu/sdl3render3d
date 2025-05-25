@@ -2,10 +2,58 @@
 #include <math.h>
 #include "rasterizer.hpp"
 
+
+void Scene::torusInit() {
+
+    clearAllSolids();
+    auto torus = std::make_unique<Torus>();
+    torus->setup(20, 10, 500, 250);
+
+    torus->position.z = -1000;
+    torus->position.x = 0;
+    torus->position.y = 0;
+    torus->position.zoom = 1.0f;
+    torus->position.xAngle = 90.0f;
+    torus->position.yAngle = 0.0f;
+    torus->position.zAngle = 0.0f;
+    torus->shading = Shading::TexturedGouraud;
+    
+    addSolid(std::move(torus));
+
+}
+
+void Scene::tetrakisInit() {
+
+    clearAllSolids();
+    auto tetrakis = std::make_unique<Tetrakis>();
+    tetrakis->setup();
+
+    tetrakis->position.z = -5000;   
+    tetrakis->position.x = 0;
+    tetrakis->position.y = 0;
+    tetrakis->position.zoom = 25;
+    tetrakis->position.xAngle = 90.0f;
+    tetrakis->position.yAngle = 0.0f;
+    tetrakis->position.zAngle = 0.0f;
+    tetrakis->shading = Shading::Flat;
+    
+    addSolid(std::move(tetrakis));
+
+}
+
+
+
+
+
 void Scene::setup() {
 
     halfwayVector = smath::normalize(lux + eye);
 
+    if (sceneType == SceneType::TORUS) {
+        torusInit();
+    } else if (sceneType == SceneType::TETRAKIS) {
+        tetrakisInit();
+    }
 
     /*
     auto torus = std::make_unique<Torus>();
@@ -51,7 +99,7 @@ void Scene::setup() {
     addSolid(std::move(test));
     */
 
-    
+    /*
     auto ascLoader = std::make_unique<AscLoader>();
     ascLoader->setup("resources/knot.asc");
 
@@ -65,7 +113,7 @@ void Scene::setup() {
     ascLoader->shading = Shading::Flat;
     
     addSolid(std::move(ascLoader));
-    
+    */
 
     /*
     auto obj = std::make_unique<ObjLoader>();

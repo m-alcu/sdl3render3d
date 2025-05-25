@@ -11,6 +11,16 @@
 #include "ZBuffer.hpp"
 
 
+enum class SceneType {
+    TORUS,
+    TETRAKIS,
+};
+
+static const char* sceneNames[] = {
+    "Torus",
+    "Tetrakis"
+};
+
 struct Camera
 {
     slib::vec3 pos;
@@ -57,6 +67,8 @@ public:
 
     // Called to set up the Scene, including creation of Solids, etc.
     void setup();
+    void torusInit();
+    void tetrakisInit();
 
     // Add a solid to the scene's list of solids.
     // Using std::unique_ptr is a good practice for ownership.
@@ -65,7 +77,15 @@ public:
         solids.push_back(std::move(solid));
     }
 
+    // Add a solid to the scene's list of solids.
+    // Using std::unique_ptr is a good practice for ownership.
+    void clearAllSolids()
+    {
+        solids.clear();
+    }
+
     Screen screen;
+    SceneType sceneType = SceneType::TORUS; // Default scene type
    
     slib::vec3 lux;
     slib::vec3 eye;

@@ -209,6 +209,23 @@ int main(int, char**)
                 background->draw(back, height, width);
             } 
 
+            int currentScene = static_cast<int>(scene.sceneType);
+            if (ImGui::Combo("Scene", &currentScene, sceneNames, IM_ARRAYSIZE(sceneNames))) {
+                // Update the enum value when selection changes
+                scene.sceneType = static_cast<SceneType>(currentScene);
+                switch (scene.sceneType) {
+                    case SceneType::TORUS:
+                        scene.torusInit();
+                        break;
+                    case SceneType::TETRAKIS:
+                        scene.tetrakisInit();
+                        break;
+                    default:
+                        scene.setup();
+                        break;
+                }
+            }
+
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
             ImGui::End();
         }
