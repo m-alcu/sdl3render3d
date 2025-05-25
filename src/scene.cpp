@@ -41,6 +41,25 @@ void Scene::tetrakisInit() {
 
 }
 
+void Scene::cubeInit() {
+
+    clearAllSolids();
+    
+    auto cube = std::make_unique<Cube>();
+    cube->setup();
+    cube->position.z = -500;
+    cube->position.x = 0;
+    cube->position.y = 0;
+    cube->position.zoom = 20;
+    cube->position.xAngle = 0.0f;
+    cube->position.yAngle = 0.0f;
+    cube->position.zAngle = 0.0f;
+    cube->shading = Shading::TexturedFlat;
+    addSolid(std::move(cube));
+    
+
+}
+
 
 
 
@@ -49,10 +68,19 @@ void Scene::setup() {
 
     halfwayVector = smath::normalize(lux + eye);
 
-    if (sceneType == SceneType::TORUS) {
-        torusInit();
-    } else if (sceneType == SceneType::TETRAKIS) {
-        tetrakisInit();
+    switch (sceneType) {
+        case SceneType::TORUS:
+            torusInit();
+            break;
+        case SceneType::TETRAKIS:
+            tetrakisInit();
+            break;
+        case SceneType::CUBE:
+            cubeInit();
+            break;
+        default:
+            tetrakisInit();
+            break;
     }
 
     /*

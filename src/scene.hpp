@@ -14,11 +14,13 @@
 enum class SceneType {
     TORUS,
     TETRAKIS,
+    CUBE
 };
 
 static const char* sceneNames[] = {
     "Torus",
-    "Tetrakis"
+    "Tetrakis",
+    "Cube"
 };
 
 struct Camera
@@ -69,6 +71,7 @@ public:
     void setup();
     void torusInit();
     void tetrakisInit();
+    void cubeInit();
 
     // Add a solid to the scene's list of solids.
     // Using std::unique_ptr is a good practice for ownership.
