@@ -29,6 +29,11 @@ void Tetrakis::loadVertices() {
     vertices.push_back({ 0, 0, -axisDist });
 
     Tetrakis::vertexData = vertices;
+
+    for (auto& vertex : Tetrakis::vertexData) {
+        vertex.texCoord = { (vertex.vertex.x/axisDist + 1)/2, (vertex.vertex.y/axisDist + 1)/2 };
+    }
+
     Tetrakis::numVertices = vertices.size();
 }
 
@@ -37,17 +42,23 @@ void Tetrakis::loadFaces() {
     std::vector<FaceData> faces;
 
     MaterialProperties properties = getMaterialProperties(MaterialType::Metal);
+
+    std::string mtlPath = "checker-map_tho.png";
     // Create and store the material
     slib::material material{};
     material.Ka = { properties.k_a * 0x00, properties.k_a * 0x58, properties.k_a * 0xfc };
     material.Kd = { properties.k_d * 0x00, properties.k_d * 0x58, properties.k_d * 0xfc }; 
     material.Ks = { properties.k_s * 0x00, properties.k_s * 0x58, properties.k_s * 0xfc };
+    material.map_Kd = DecodePng(std::string(RES_PATH + mtlPath).c_str());
+    material.map_Kd.textureFilter = slib::TextureFilter::NEIGHBOUR;
     material.Ns = properties.shininess;
     materials.insert({"blue", material});
 
     material.Ka = { properties.k_a * 0xff, properties.k_a * 0xff, properties.k_a * 0xff };
     material.Kd = { properties.k_d * 0xff, properties.k_d * 0xff, properties.k_d * 0xff };
     material.Ks = { properties.k_s * 0xff, properties.k_s * 0xff, properties.k_s * 0xff };
+    material.map_Kd = DecodePng(std::string(RES_PATH + mtlPath).c_str());
+    material.map_Kd.textureFilter = slib::TextureFilter::NEIGHBOUR;    
     material.Ns = properties.shininess;
     materials.insert({"white", material});    
 
