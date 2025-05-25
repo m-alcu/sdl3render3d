@@ -17,6 +17,9 @@
 #include <SDL3/SDL.h>
 #include "backgrounds/background.hpp"
 #include "backgrounds/backgroundFactory.hpp"
+#include "rasterizer.hpp"
+#include "renderer.hpp"
+#include "scene.hpp"
 
 #ifdef __EMSCRIPTEN__
 #include "../libs/emscripten/emscripten_mainloop_stub.h"
@@ -36,6 +39,8 @@ int main(int, char**)
     int width = 1280;
     int height = 720;
 
+    Renderer solidRenderer;
+
     // Create window with SDL_Renderer graphics context
     SDL_WindowFlags window_flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_HIGH_PIXEL_DENSITY;
     SDL_Window* window = SDL_CreateWindow("Dear ImGui SDL3+SDL_Renderer example", width, height, window_flags);
@@ -51,12 +56,6 @@ int main(int, char**)
         SDL_Log("Error: SDL_CreateRenderer(): %s\n", SDL_GetError());
         return -1;
     }
-
-    SDL_Surface* sdlSurface = SDL_CreateSurface(width, height, SDL_PIXELFORMAT_RGBA32);
-    if (!sdlSurface) {
-        SDL_Log("SDL_CreateSurface failed: %s", SDL_GetError());
-    }
-
 
 
     SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
@@ -98,13 +97,25 @@ int main(int, char**)
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
+    Scene scene({height, width});
+    scene.lux = smath::normalize(slib::vec3{0, 1, 1});;
+    scene.eye = {0, 0, 1};
+    scene.camera.pos = {0, 0, 0};
+    scene.camera.pitch = 0;
+    scene.camera.yaw = 0;
+    scene.setup();
+
+    float zNear = 100.0f; // Near plane distance
+    float zFar  = 10000.0f; // Far plane distance
+    float viewAngle = 45.0f; // Field of view angle in degrees    
+
     // Backgroud
     Uint32* back = new Uint32[width * height];
     auto background = BackgroundFactory::createBackground(BackgroundType::DESERT);
     background->draw(back, height, width);
 
-    auto* pixels = static_cast<uint32_t*>(sdlSurface->pixels);
-    std::copy(back, back + width * height, pixels);
+    float mouseSensitivity = 0.1f;
+    float cameraSpeed = 100.0f;
 
     // Main loop
     bool done = false;
@@ -178,13 +189,15 @@ int main(int, char**)
             ImGui::End();
         }
 
+        solidRenderer.drawScene(scene, zNear, zFar, viewAngle, back);
+
         // Rendering
         ImGui::Render();
         //SDL_SetRenderScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
-        SDL_SetRenderDrawColorFloat(renderer, clear_color.x, clear_color.y, clear_color.z, clear_color.w);
-        SDL_RenderClear(renderer);
+        //SDL_SetRenderDrawColorFloat(renderer, clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+        //SDL_RenderClear(renderer);
 
-        SDL_Texture* tex = SDL_CreateTextureFromSurface(renderer, sdlSurface);
+        SDL_Texture* tex = SDL_CreateTextureFromSurface(renderer, scene.sdlSurface);
         if (!tex) {
             SDL_Log("SDL_CreateTextureFromSurface failed: %s", SDL_GetError());
         }
@@ -207,8 +220,6 @@ int main(int, char**)
     ImGui::DestroyContext();
 
     delete[] back;
-
-    SDL_DestroySurface(sdlSurface);
 
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
