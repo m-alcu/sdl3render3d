@@ -200,6 +200,14 @@ int main(int, char**)
             ImGui::SliderFloat("x angle", &incXangle, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
             ImGui::SliderFloat("y angle", &incYangle, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
 
+
+            // Render combo box in your ImGui window code
+            int currentShading = static_cast<int>(scene.solids[0]->shading);
+            if (ImGui::Combo("Shading", &currentShading, shadingNames, IM_ARRAYSIZE(shadingNames))) {
+                // Update the enum value when selection changes
+                scene.solids[0]->shading = static_cast<Shading>(currentShading);
+            }            
+
             if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
                 counter++;
             ImGui::SameLine();

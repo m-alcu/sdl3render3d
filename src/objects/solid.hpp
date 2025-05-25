@@ -16,19 +16,17 @@ enum class Shading {
     TexturedPhong
 };
 
-inline std::string shadingToString(Shading s) {
-    switch (s) {
-        case Shading::Flat:  return "<Flat>";
-        case Shading::Gouraud: return "<Gouraud>";
-        case Shading::BlinnPhong: return "<BlinnPhong>";
-        case Shading::Phong: return "<Phong>";
-        case Shading::TexturedFlat: return "<TexturedFlat>";
-        case Shading::TexturedGouraud: return "<TexturedGouraud>";
-        case Shading::TexturedBlinnPhong: return "<TexturedBlinnPhong>";
-        case Shading::TexturedPhong: return "<TexturedPhong>";
-        default: return "Unknown";
-    }
-}
+// Labels for the enum (must match order of enum values)
+static const char* shadingNames[] = {
+    "Flat",
+    "Gouraud",
+    "Blinn-Phong",
+    "Phong",
+    "Textured Flat",
+    "Textured Gouraud",
+    "Textured Blinn-Phong",
+    "Textured Phong"
+};
 
 struct VertexData {
     slib::vec3 vertex;

@@ -38,7 +38,7 @@ public:
           zBuffer( std::make_shared<ZBuffer>( scr.width,scr.height )),
           projectionMatrix(smath::identity())
     {
-        sdlSurface = SDL_CreateSurface(screen.width, screen.height, SDL_PIXELFORMAT_RGBA32);
+        sdlSurface = SDL_CreateSurface(screen.width, screen.height, SDL_PIXELFORMAT_BGRA32);
         if (!sdlSurface) {
             SDL_Log("SDL_CreateSurface failed: %s", SDL_GetError());
         }
