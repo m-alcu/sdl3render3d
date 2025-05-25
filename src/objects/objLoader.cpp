@@ -33,16 +33,22 @@ void ObjLoader::loadVertices(const std::string& filename) {
 
     MaterialProperties properties = getMaterialProperties(MaterialType::Metal);
 
+    std::string mtlPath = "checker-map_tho.png";
+
     slib::material material{};
-    material.Ka = { properties.k_a * 0x00, properties.k_a * 0x58, properties.k_a * 0xfc };
+    material.Ka = { properties.k_a * 0x00, properties.k_a * 0x00, properties.k_a * 0x00 };
     material.Kd = { properties.k_d * 0x00, properties.k_d * 0x58, properties.k_d * 0xfc }; 
-    material.Ks = { properties.k_s * 0x00, properties.k_s * 0x58, properties.k_s * 0xfc };
+    material.Ks = { properties.k_s * 0xff, properties.k_s * 0xff, properties.k_s * 0xff };
+    material.map_Kd = DecodePng(std::string(RES_PATH + mtlPath).c_str());
+    material.map_Kd.textureFilter = slib::TextureFilter::NEIGHBOUR;
     material.Ns = properties.shininess;
     materials.insert({"blue", material});
 
-    material.Ka = { properties.k_a * 0xff, properties.k_a * 0xff, properties.k_a * 0xff };
+    material.Ka = { properties.k_a * 0x00, properties.k_a * 0x00, properties.k_a * 0x00 };
     material.Kd = { properties.k_d * 0xff, properties.k_d * 0xff, properties.k_d * 0xff };
     material.Ks = { properties.k_s * 0xff, properties.k_s * 0xff, properties.k_s * 0xff };
+    material.map_Kd = DecodePng(std::string(RES_PATH + mtlPath).c_str());
+    material.map_Kd.textureFilter = slib::TextureFilter::NEIGHBOUR;
     material.Ns = properties.shininess;
     materials.insert({"white", material});  
 
@@ -98,6 +104,26 @@ void ObjLoader::loadVertices(const std::string& filename) {
 
     // Store vertices and faces in the class members
     ObjLoader::vertexData = vertices;
+
+    float x_min = 0.0f;
+    float y_min = 0.0f;
+    float x_max = 0.0f;
+    float y_max = 0.0f;
+
+    for (auto& vertex : ObjLoader::vertexData) {
+        // Calculate min and max for x and y coordinates
+        if (vertex.vertex.x < x_min) x_min = vertex.vertex.x;
+        if (vertex.vertex.y < y_min) y_min = vertex.vertex.y;
+        if (vertex.vertex.x > x_max) x_max = vertex.vertex.x;
+        if (vertex.vertex.y > y_max) y_max = vertex.vertex.y;
+    }
+
+    for (auto& vertex : ObjLoader::vertexData) {
+        // Set texture coordinates based on the min and max values
+        vertex.texCoord.x = (vertex.vertex.x - x_min) / (x_max - x_min);
+        vertex.texCoord.y = (vertex.vertex.y - y_min) / (y_max - y_min);
+    }
+
     ObjLoader::faceData = faces;
     ObjLoader::numVertices = num_vertex;
     ObjLoader::numFaces = num_faces;
