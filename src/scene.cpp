@@ -80,6 +80,27 @@ void Scene::knotInit() {
 
 }
 
+void Scene::starInit() {
+
+    clearAllSolids();
+    
+    auto ascLoader = std::make_unique<AscLoader>();
+    ascLoader->setup("resources/STAR.ASC");
+
+    ascLoader->position.z = -500;   
+    ascLoader->position.x = 0;
+    ascLoader->position.y = 0;
+    ascLoader->position.zoom = 1;
+    ascLoader->position.xAngle = 90.0f;
+    ascLoader->position.yAngle = 0.0f;
+    ascLoader->position.zAngle = 0.0f;
+    ascLoader->shading = Shading::Flat;
+    
+    addSolid(std::move(ascLoader));
+
+}
+
+
 
 
 void Scene::setup() {
@@ -98,7 +119,10 @@ void Scene::setup() {
             break;
         case SceneType::KNOT:
             knotInit();
-            break;            
+            break;   
+        case SceneType::STAR:
+            starInit();
+            break;         
         default:
             tetrakisInit();
             break;
