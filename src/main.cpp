@@ -114,7 +114,7 @@ int main(int, char**)
     background->draw(back, height, width);
 
     static float mouseSensitivity = 1.0f;
-    static float cameraSpeed = 2.0f;
+    static float cameraSpeed = 6.0f;
 
     // Main loop
     bool done = false;
