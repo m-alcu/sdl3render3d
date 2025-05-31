@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cstdint>
 #include <cmath>
+#include "rasterizer.hpp"
 #include "objects/tetrakis.hpp"
 #include "objects/torus.hpp"
 #include "objects/test.hpp"
@@ -14,19 +15,72 @@
 #include "smath.hpp"
 #include "tri.hpp"
 
-enum class ClipPlane {
-    Left, Right, Bottom, Top, Near, Far
-};
-
 template<class Effect>
-class AmigaRasterizer : Rasterizer<Effect> {
+class AmigaRasterizer {
     public:
         AmigaRasterizer() :  fullTransformMat(smath::identity()), 
                              normalTransformMat(smath::identity()),
                              viewMatrix(smath::identity())
           {}
 
+        void drawRenderable(Solid& solid, Scene& scn) {
+            setRenderable(&solid);
+            scene = &scn;
+            prepareRenderable();
+            ProcessVertex();
+            DrawFaces();
+        }          
+
     private:
+        typedef typename Effect::Vertex vertex;
+        std::vector<std::unique_ptr<vertex>> projectedPoints;
+        Solid* solid;  // Pointer to the abstract Solid
+        Scene* scene; // Pointer to the Scene
+        slib::mat4 fullTransformMat;
+        slib::mat4 normalTransformMat;
+        slib::mat4 viewMatrix;
+        Effect effect;    
+        
+        void setRenderable(Solid* solidPtr) {
+            projectedPoints.clear();
+            projectedPoints.resize(solidPtr->numVertices);
+            solid = solidPtr;
+        }
+
+        void prepareRenderable() {
+            slib::mat4 rotate = smath::rotation(slib::vec3({solid->position.xAngle, solid->position.yAngle, solid->position.zAngle}));
+            slib::mat4 translate = smath::translation(slib::vec3({solid->position.x, solid->position.y, solid->position.z}));
+            slib::mat4 scale = smath::scale(slib::vec3({solid->position.zoom, solid->position.zoom, solid->position.zoom}));
+            //slib::mat4 viewMatrix = smath::view(scene->camera.eye, scene->camera.target, scene->camera.up);
+            viewMatrix = smath::fpsview(scene->camera.pos, scene->camera.pitch, scene->camera.yaw);
+
+            float pitch = scene->camera.pitch * RAD;
+            float yaw = scene->camera.yaw * RAD;
+            float cosPitch = cos(pitch);
+            float sinPitch = sin(pitch);
+            float cosYaw = cos(yaw);
+            float sinYaw = sin(yaw);
+            slib::vec3 zaxis = {sinYaw * cosPitch, -sinPitch, cosPitch * cosYaw};
+
+            scene->camera.forward = zaxis;
+
+            fullTransformMat = translate * rotate * scale;
+            normalTransformMat = rotate;
+        }
+
+        void ProcessVertex()
+        {
+            projectedPoints.resize(solid->numVertices);
+        
+            std::transform(
+                solid->vertexData.begin(),
+                solid->vertexData.end(),
+                projectedPoints.begin(),
+                [&](const auto& vData) {
+                    return effect.vs(vData, fullTransformMat, viewMatrix, normalTransformMat, *scene);
+                }
+            );
+        }
         
         std::vector<std::pair<int, float>> SortFaces() {
 
@@ -35,14 +89,19 @@ class AmigaRasterizer : Rasterizer<Effect> {
             faceIndicesWithDepth.reserve(solid->faceData.size());
 
             for (int i = 0; i < static_cast<int>(solid->faceData.size()); ++i) {
-                const auto& face = solid->faceData[i].face;
+                const auto& faceDataEntry = solid->faceData[i];
+                const auto& face = faceDataEntry.face;
 
-                float z1 = projectedPoints[face.vertex1]->ndc.z / projectedPoints[face.vertex1]->ndc.w;
-                float z2 = projectedPoints[face.vertex2]->ndc.z / projectedPoints[face.vertex2]->ndc.w;
-                float z3 = projectedPoints[face.vertex3]->ndc.z / projectedPoints[face.vertex3]->ndc.w;
+                slib::vec3 rotatedFaceNormal;
+                rotatedFaceNormal = normalTransformMat * slib::vec4(faceDataEntry.faceNormal, 0);
+                if (Visible(projectedPoints[face.vertex1]->world, rotatedFaceNormal)) {
 
-                float averageZ = (z1 + z2 + z3) / 3.0f;
-                faceIndicesWithDepth.emplace_back(i, averageZ);
+                    float z1 = projectedPoints[face.vertex1]->p_z;
+                    float z2 = projectedPoints[face.vertex2]->p_z;
+                    float z3 = projectedPoints[face.vertex3]->p_z;
+                    float averageZ = z1 + z2 + z3;
+                    faceIndicesWithDepth.emplace_back(i, averageZ);
+                }
             }
             
             // Sort the vector by depth (second element of the pair)
@@ -66,29 +125,138 @@ class AmigaRasterizer : Rasterizer<Effect> {
                 slib::vec3 rotatedFaceNormal;
                 rotatedFaceNormal = normalTransformMat * slib::vec4(faceDataEntry.faceNormal, 0);
 
-                vertex* p1 = projectedPoints[face.vertex1].get();
+                Triangle<vertex> tri(
+                    *projectedPoints[face.vertex1],
+                    *projectedPoints[face.vertex2],
+                    *projectedPoints[face.vertex3],
+                    face,
+                    rotatedFaceNormal,
+                    solid->materials.at(face.materialKey)
+                );
 
-                if (Visible(p1->world, rotatedFaceNormal)) {
-                    Triangle<vertex> tri(
-                        *projectedPoints[face.vertex1],
-                        *projectedPoints[face.vertex2],
-                        *projectedPoints[face.vertex3],
-                        face,
-                        rotatedFaceNormal,
-                        solid->materials.at(face.materialKey)
-                    );
-
-                    ClipCullDrawTriangleSutherlandHodgman(tri); // Must be thread-safe!
-                }
+                ClipCullDrawTriangleSutherlandHodgman(tri); // Must be thread-safe!
             }
         }
+
+        /*
+        Check if triangle is visible.
+        If the triangle is visible, we can proceed with the rasterization process.
+        The calculation is based on the cross product of the edges of the triangle.
+        - If the result is positive, the triangle is visible.
+        - If the result is negative, the triangle is not visible.edeeee
+        - If the result is zero, the triangle is coplanar with the screen.
+        This is a simplified version of the backface culling algorithm.
+        The backface culling algorithm is used to determine if a triangle is facing the camera or not.
+        If the triangle is facing away from the camera, we can skip the rasterization process.
+        */
+        bool Visible(const slib::vec3& world, const slib::vec3& faceNormal) {
+
+            slib::vec3 viewDir = scene->camera.pos - world;
+            float dotResult = smath::dot(faceNormal, viewDir);
+            // Return whether the triangle is facing the camera
+            return dotResult > 0.0f;
+        };
+
+        /*
+        Clipping is done using the Sutherland-Hodgman algorithm (1974) in the ndc space.
+        The Sutherland-Hodgman algorithm is a polygon clipping algorithm that clips a polygon against a convex clipping region.
+        The algorithm works by iterating through each edge of the polygon and checking if the vertices are inside or outside the clipping plane.
+        If a vertex is inside, it is added to the output polygon. If a vertex is outside, the algorithm checks if the previous vertex was inside. If it was, the edge between the two vertices is clipped and the intersection point is added to the output polygon.
+        The algorithm continues until all edges have been processed.
+        https://en.wikipedia.org/wiki/Sutherland%E2%80%93Hodgman_algorithm
+        */
+
+        void ClipCullDrawTriangleSutherlandHodgman(const Triangle<vertex>& t) {
+            std::vector<vertex> polygon = { t.p1, t.p2, t.p3 };
+
+            for (ClipPlane plane : {ClipPlane::Left, ClipPlane::Right, ClipPlane::Bottom, 
+                                    ClipPlane::Top, ClipPlane::Near, ClipPlane::Far}) {
+                polygon = ClipAgainstPlane(polygon, plane);
+                if (polygon.empty()) return; // Completely outside
+            }
+
+            // Triangulate fan-style and draw
+            for (size_t i = 1; i + 1 < polygon.size(); ++i) {
+                Triangle<vertex> tri(polygon[0], polygon[i], polygon[i + 1], t.face, t.faceNormal, t.material);
+                draw(tri);
+            }
+        }
+
+        std::vector<vertex> ClipAgainstPlane(const std::vector<vertex>& poly, ClipPlane plane) {
+            std::vector<vertex> output;
+            if (poly.empty()) return output;
+        
+            vertex prev = poly.back();
+            bool prevInside = IsInside(prev, plane);
+        
+            for (const auto& curr : poly) {
+                bool currInside = IsInside(curr, plane);
+        
+                if (currInside != prevInside) {
+                    // from inside to outside, we need to clip the edge always this way
+                    if (prevInside) {
+                        float alpha = ComputeAlpha(prev, curr, plane);
+                        output.push_back(prev + (curr - prev) * alpha);
+                    } else {
+                        float alpha = ComputeAlpha(curr, prev, plane);
+                        output.push_back(curr + (prev - curr) * alpha);
+                    }
+                }
+                if (currInside)
+                    output.push_back(curr);
+                prev = curr;
+                prevInside = currInside;
+            }
+        
+            return output;
+        } 
+        
+        bool IsInside(const vertex& v, ClipPlane plane) {
+            const auto& p = v.ndc;
+            switch (plane) {
+                case ClipPlane::Left:   return p.x >= -p.w;
+                case ClipPlane::Right:  return p.x <=  p.w;
+                case ClipPlane::Bottom: return p.y >= -p.w;
+                case ClipPlane::Top:    return p.y <=  p.w;
+                case ClipPlane::Near:   return p.z >= -p.w;
+                case ClipPlane::Far:    return p.z <=  p.w;
+            }
+            return false;
+        }
+        
+        float ComputeAlpha(const vertex& a, const vertex& b, ClipPlane plane) {
+            const auto& pa = a.ndc;
+            const auto& pb = b.ndc;
+            float num, denom;
+        
+            switch (plane) {
+                case ClipPlane::Left:
+                    num = pa.x + pa.w; denom = (pa.x + pa.w) - (pb.x + pb.w); break;
+                case ClipPlane::Right:
+                    num = pa.x - pa.w; denom = (pa.x - pa.w) - (pb.x - pb.w); break;
+                case ClipPlane::Bottom:
+                    num = pa.y + pa.w; denom = (pa.y + pa.w) - (pb.y + pb.w); break;
+                case ClipPlane::Top:
+                    num = pa.y - pa.w; denom = (pa.y - pa.w) - (pb.y - pb.w); break;
+                case ClipPlane::Near:
+                    num = pa.z + pa.w; denom = (pa.z + pa.w) - (pb.z + pb.w); break;
+                case ClipPlane::Far:
+                    num = pa.z - pa.w; denom = (pa.z - pa.w) - (pb.z - pb.w); break;
+            }
+        
+            return denom != 0.0f ? num / denom : 0.0f;
+        }
+        
+        /*
+        Drawing a triangle with scanline rasterization.
+        The algorithm works by iterating through each scanline of the triangle and determining the left and right edges of the triangle at that scanline.
+        For each scanline, the algorithm calculates the x-coordinates of the left and right edges of the triangle and fills in the pixels between them.
+        The algorithm uses a slope to determine the x-coordinates of the left and right edges of the triangle at each scanline.
+        */
 
         void draw(Triangle<vertex>& tri) {
 
             auto* pixels = static_cast<uint32_t*>(scene->sdlSurface->pixels);
-            effect.vs.viewProjection(*scene, tri.p1);
-            effect.vs.viewProjection(*scene, tri.p2);
-            effect.vs.viewProjection(*scene, tri.p3);
             orderVertices(&tri.p1, &tri.p2, &tri.p3);
             if(tri.p1.p_y == tri.p3.p_y) return;
 

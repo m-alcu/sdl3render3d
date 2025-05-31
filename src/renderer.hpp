@@ -4,7 +4,9 @@
 #include <cstdint>
 #include "objects/solid.hpp"
 #include "rasterizer.hpp"
+#include "amigaRasterizer.hpp"
 #include "effects/flatEffect.hpp"
+#include "effects/amigaFlatEffect.hpp"
 #include "effects/GouraudEffect.hpp"
 #include "effects/BlinnPhongEffect.hpp"
 #include "effects/PhongEffect.hpp"
@@ -70,7 +72,7 @@ class Renderer {
         }
         
         Rasterizer<FlatEffect> flatRasterizer;
-        Rasterizer<FlatEffect> amigaFlatRasterizer;
+        AmigaRasterizer<AmigaFlatEffect> amigaFlatRasterizer;
         Rasterizer<GouraudEffect> gouraudRasterizer;
         Rasterizer<PhongEffect> phongRasterizer;
         Rasterizer<BlinnPhongEffect> blinnPhongRasterizer;
