@@ -7,7 +7,7 @@
 
 enum class BackgroundType {
     DESERT,
-    IMAGE_PNG
+    IMAGE_PNG,
 };
 
 static const char* backgroundNames[] = {

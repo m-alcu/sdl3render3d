@@ -153,14 +153,7 @@ class Rasterizer {
             // Triangulate fan-style and draw
             for (size_t i = 1; i + 1 < polygon.size(); ++i) {
                 Triangle<vertex> tri(polygon[0], polygon[i], polygon[i + 1], t.face, t.faceNormal, t.material);
-                draw(tri,
-                    [&](const vertex from, const vertex to, int num_steps)
-                    {
-                        // Retrieve X coordinates for begin and end.
-                        // Number of steps = number of scanlines
-                        return Slope( from, to, num_steps );
-                    } 
-                );
+                draw(tri);
             }
         }
 
@@ -252,7 +245,7 @@ class Rasterizer {
             void advance()    { begin += step; }
         };
 
-        void draw(Triangle<vertex>& tri, auto&& MakeSlope) {
+        void draw(Triangle<vertex>& tri) {
 
             auto* pixels = static_cast<uint32_t*>(scene->sdlSurface->pixels);
             effect.vs.viewProjection(*scene, tri.p1);
@@ -269,7 +262,14 @@ class Rasterizer {
             tri.p2.p_x = tri.p2.p_x << 16; // shift to 16.16 space
             tri.p3.p_x = tri.p3.p_x << 16; // shift to 16.16 space
 
-            std::invoke_result_t<decltype(MakeSlope), vertex, vertex,int> sides[2];
+            Slope sides[2];
+
+            auto&& MakeSlope = [&](const vertex from, const vertex to, int num_steps)
+            {
+                // Retrieve X coordinates for begin and end.
+                // Number of steps = number of scanlines
+                return Slope( from, to, num_steps );
+            }; 
 
             sides[!shortside] = MakeSlope(tri.p1,tri.p3, tri.p3.p_y - tri.p1.p_y);
 

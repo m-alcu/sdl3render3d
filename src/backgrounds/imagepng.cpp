@@ -6,7 +6,7 @@ void Imagepng::draw(uint32_t *pixels, uint16_t high_in, uint16_t width_in) {
 
     std::vector<unsigned char> buffer;
     std::vector<unsigned char> image; // the raw pixels
-    lodepng::load_file(buffer, "resources/2000.png");
+    lodepng::load_file(buffer, "resources/PCwKbU.png");
 
     unsigned img_width, img_height;
     lodepng::State state;
