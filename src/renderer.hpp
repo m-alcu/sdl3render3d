@@ -25,6 +25,9 @@ class Renderer {
                     case Shading::Flat: 
                         flatRasterizer.drawRenderable(*solidPtr, scene);
                         break;   
+                    case Shading::AmigaFlat: 
+                        amigaFlatRasterizer.drawRenderable(*solidPtr, scene);
+                        break;                          
                     case Shading::TexturedFlat: 
                         texturedFlatRasterizer.drawRenderable(*solidPtr, scene);
                         break;                             
@@ -67,6 +70,7 @@ class Renderer {
         }
         
         Rasterizer<FlatEffect> flatRasterizer;
+        Rasterizer<FlatEffect> amigaFlatRasterizer;
         Rasterizer<GouraudEffect> gouraudRasterizer;
         Rasterizer<PhongEffect> phongRasterizer;
         Rasterizer<BlinnPhongEffect> blinnPhongRasterizer;
