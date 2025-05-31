@@ -87,7 +87,7 @@ class Rasterizer {
 
         void DrawFaces() {
 
-            //#pragma omp parallel for
+            #pragma omp parallel for
             for (int i = 0; i < static_cast<int>(solid->faceData.size()); ++i) {
                 const auto& faceDataEntry = solid->faceData[i];
                 const auto& face = faceDataEntry.face;

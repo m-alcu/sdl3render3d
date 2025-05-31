@@ -118,7 +118,6 @@ class AmigaRasterizer {
 
             std::vector<std::pair<int, float>> faceIndicesWithDepth = SortFaces();
 
-            //#pragma omp parallel for
             for (int i = 0; i < static_cast<int>(faceIndicesWithDepth.size()); ++i) {
                 const auto& faceDataEntry = solid->faceData[faceIndicesWithDepth[i].first];
                 const auto& face = faceDataEntry.face;
