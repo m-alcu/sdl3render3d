@@ -288,6 +288,13 @@ class AmigaRasterizer {
                 if(line[2*y+1]>line[2*y+0]) for(x=line[2*y+0]; x<=line[2*y+1]; x++) pixels[scene->screen.width*y+x] = color;
         }
 
+        /*
+        Bresenham's line algorithm for rasterizing lines.
+        This algorithm is used to draw lines on a raster display.
+        No floating point operations are used, only integer arithmetic.
+        It works by calculating the difference in x and y coordinates between the two endpoints of the line and then incrementally drawing pixels along the line.
+        */
+
         void rasterizeAmiga(int x0, int y0, int x1, int y1, int16_t *line) 
         {
             if((y0<0 && y1<0) || (y0>=scene->screen.height && y1>=scene->screen.height)) return; // exit if line outside rasterized area
