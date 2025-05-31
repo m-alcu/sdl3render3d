@@ -81,11 +81,16 @@ class AmigaRasterizer {
                 }
             );
         }
-        
-        std::vector<std::pair<int, float>> SortFaces() {
 
-           // Create vector of (index, depth) pairs
-            std::vector<std::pair<int, float>> faceIndicesWithDepth;
+        struct FaceDepthInfo {
+            int index;           // index of the face
+            float averageZ;      // used for sorting
+            slib::vec3 rotatedFaceNormal;  // transformed face normal
+        };
+
+        std::vector<FaceDepthInfo> SortFaces() {
+
+            std::vector<FaceDepthInfo> faceIndicesWithDepth;
             faceIndicesWithDepth.reserve(solid->faceData.size());
 
             for (int i = 0; i < static_cast<int>(solid->faceData.size()); ++i) {
@@ -100,14 +105,14 @@ class AmigaRasterizer {
                     float z2 = projectedPoints[face.vertex2]->p_z;
                     float z3 = projectedPoints[face.vertex3]->p_z;
                     float averageZ = z1 + z2 + z3;
-                    faceIndicesWithDepth.emplace_back(i, averageZ);
+                    faceIndicesWithDepth.emplace_back(i, averageZ, rotatedFaceNormal);
                 }
             }
             
             // Sort the vector by depth (second element of the pair)
             std::sort(faceIndicesWithDepth.begin(), faceIndicesWithDepth.end(),
                 [](const auto& a, const auto& b) {
-                    return a.second > b.second;
+                    return a.averageZ > b.averageZ;
                 });
 
             return faceIndicesWithDepth;
@@ -116,20 +121,18 @@ class AmigaRasterizer {
 
         void DrawFaces() {
 
-            std::vector<std::pair<int, float>> faceIndicesWithDepth = SortFaces();
+            std::vector<FaceDepthInfo> faceIndicesWithDepth = SortFaces();
 
             for (int i = 0; i < static_cast<int>(faceIndicesWithDepth.size()); ++i) {
-                const auto& faceDataEntry = solid->faceData[faceIndicesWithDepth[i].first];
+                const auto& faceDataEntry = solid->faceData[faceIndicesWithDepth[i].index];
                 const auto& face = faceDataEntry.face;
-                slib::vec3 rotatedFaceNormal;
-                rotatedFaceNormal = normalTransformMat * slib::vec4(faceDataEntry.faceNormal, 0);
 
                 Triangle<vertex> tri(
                     *projectedPoints[face.vertex1],
                     *projectedPoints[face.vertex2],
                     *projectedPoints[face.vertex3],
                     face,
-                    rotatedFaceNormal,
+                    faceIndicesWithDepth[i].rotatedFaceNormal,
                     solid->materials.at(face.materialKey)
                 );
 
