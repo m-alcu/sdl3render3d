@@ -196,10 +196,14 @@ class AmigaRasterizer {
                     // from inside to outside, we need to clip the edge always this way
                     if (prevInside) {
                         float alpha = ComputeAlpha(prev, curr, plane);
-                        output.push_back(prev + (curr - prev) * alpha);
+                        vertex clippedVertex = prev + (curr - prev) * alpha;
+                        effect.vs.viewProjection(clippedVertex, *scene);
+                        output.push_back(clippedVertex);
                     } else {
                         float alpha = ComputeAlpha(curr, prev, plane);
-                        output.push_back(curr + (prev - curr) * alpha);
+                        vertex clippedVertex = curr + (prev - curr) * alpha;
+                        effect.vs.viewProjection(clippedVertex, *scene);
+                        output.push_back(clippedVertex);
                     }
                 }
                 if (currInside)
