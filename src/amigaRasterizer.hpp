@@ -29,7 +29,11 @@ class AmigaRasterizer {
             prepareRenderable();
             ProcessVertex();
             DrawFaces();
-        }          
+        }
+
+        void setWireframe(bool wireframeMode) {
+            wireframe = wireframeMode;
+        }        
 
     private:
         typedef typename Effect::Vertex vertex;
@@ -39,13 +43,16 @@ class AmigaRasterizer {
         slib::mat4 fullTransformMat;
         slib::mat4 normalTransformMat;
         slib::mat4 viewMatrix;
-        Effect effect;    
+        Effect effect;
+        bool wireframe = false;    
         
         void setRenderable(Solid* solidPtr) {
             projectedPoints.clear();
             projectedPoints.resize(solidPtr->numVertices);
             solid = solidPtr;
         }
+
+
 
         void prepareRenderable() {
             slib::mat4 rotate = smath::rotation(slib::vec3({solid->position.xAngle, solid->position.yAngle, solid->position.zAngle}));
@@ -100,7 +107,7 @@ class AmigaRasterizer {
 
                 slib::vec3 rotatedFaceNormal;
                 rotatedFaceNormal = normalTransformMat * slib::vec4(faceDataEntry.faceNormal, 0);
-                if (Visible(projectedPoints[face.vertex1]->world, rotatedFaceNormal)) {
+                if (Visible(projectedPoints[face.vertex1]->world, rotatedFaceNormal) || wireframe) {
 
                     float z1 = projectedPoints[face.vertex1]->p_z;
                     float z2 = projectedPoints[face.vertex2]->p_z;
@@ -110,11 +117,13 @@ class AmigaRasterizer {
                 }
             }
             
-            // Sort the vector by averageZ
-            std::sort(faceIndicesWithDepth.begin(), faceIndicesWithDepth.end(),
-                [](const auto& a, const auto& b) {
-                    return a.averageZ > b.averageZ;
-                });
+            if (!wireframe) {
+                // If wireframe mode is not enabled, we need to cull back faces
+                std::sort(faceIndicesWithDepth.begin(), faceIndicesWithDepth.end(),
+                    [](const auto& a, const auto& b) {
+                        return a.averageZ > b.averageZ;
+                    });
+            }
 
             return faceIndicesWithDepth;
         }
@@ -269,7 +278,10 @@ class AmigaRasterizer {
 
             effect.gs(tri, *scene);
 
-            drawAmiga(tri.p1.p_x, tri.p1.p_y, tri.p2.p_x, tri.p2.p_y, tri.p3.p_x, tri.p3.p_y, tri.flatColor, pixels);
+            if (wireframe) 
+                drawWireframeAmiga(tri.p1.p_x, tri.p1.p_y, tri.p2.p_x, tri.p2.p_y, tri.p3.p_x, tri.p3.p_y, 0xffffffff, pixels);
+            else 
+                drawAmiga(tri.p1.p_x, tri.p1.p_y, tri.p2.p_x, tri.p2.p_y, tri.p3.p_x, tri.p3.p_y, tri.flatColor, pixels);
         };
 
         inline void orderVertices(vertex *p1, vertex *p2, vertex *p3) {
@@ -317,6 +329,30 @@ class AmigaRasterizer {
                 err2 = err+err;
                 if(err2 > -dy) { err -= dy; x0 += sx; }
                 if(err2 < dx)  { err += dx; y0 += sy; }
+            }
+        }
+
+        void drawWireframeAmiga(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color, uint32_t* pixels) {
+            int width = scene->screen.width;
+            int height = scene->screen.height;
+            drawLine(x0, y0, x1, y1, pixels, width, height, color);
+            drawLine(x1, y1, x2, y2, pixels, width, height, color);
+            drawLine(x2, y2, x0, y0, pixels, width, height, color);
+        }
+
+        void drawLine(int x0, int y0, int x1, int y1, uint32_t* pixels, int width, int height, uint32_t color) {
+            int dx = std::abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
+            int dy = -std::abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+            int err = dx + dy, e2;
+
+            while (true) {
+                if (x0 >= 0 && x0 < width && y0 >= 0 && y0 < height)
+                    pixels[y0 * width + x0] = color;
+
+                if (x0 == x1 && y0 == y1) break;
+                e2 = 2 * err;
+                if (e2 >= dy) { err += dy; x0 += sx; }
+                if (e2 <= dx) { err += dx; y0 += sy; }
             }
         }
 

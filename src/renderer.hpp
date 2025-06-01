@@ -27,9 +27,14 @@ class Renderer {
                     case Shading::Flat: 
                         flatRasterizer.drawRenderable(*solidPtr, scene);
                         break;   
-                    case Shading::AmigaFlat: 
+                    case Shading::AmigaFlat:
+                        amigaFlatRasterizer.setWireframe(false);
                         amigaFlatRasterizer.drawRenderable(*solidPtr, scene);
-                        break;                          
+                        break;        
+                    case Shading::AmigaWireframe: 
+                        amigaFlatRasterizer.setWireframe(true);
+                        amigaFlatRasterizer.drawRenderable(*solidPtr, scene);
+                        break;                                              
                     case Shading::TexturedFlat: 
                         texturedFlatRasterizer.drawRenderable(*solidPtr, scene);
                         break;                             
