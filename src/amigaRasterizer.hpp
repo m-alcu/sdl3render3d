@@ -91,6 +91,7 @@ class AmigaRasterizer {
         std::vector<FaceDepthInfo> SortFaces() {
 
             std::vector<FaceDepthInfo> faceIndicesWithDepth;
+            // This does not change the size of the vector, just reserves space for future entries, this is more efficient
             faceIndicesWithDepth.reserve(solid->faceData.size());
 
             for (int i = 0; i < static_cast<int>(solid->faceData.size()); ++i) {
@@ -109,7 +110,7 @@ class AmigaRasterizer {
                 }
             }
             
-            // Sort the vector by depth (second element of the pair)
+            // Sort the vector by averageZ
             std::sort(faceIndicesWithDepth.begin(), faceIndicesWithDepth.end(),
                 [](const auto& a, const auto& b) {
                     return a.averageZ > b.averageZ;

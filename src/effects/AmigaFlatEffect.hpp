@@ -60,8 +60,8 @@ public:
 
         void viewProjection(Vertex& p, const Scene& scene) const {
             float oneOverW = 1.0f / p.ndc.w;
-            p.p_x = static_cast<int>((p.ndc.x * oneOverW + 1.0f) * (scene.screen.width / 2.0f));
-            p.p_y = static_cast<int>((p.ndc.y * oneOverW + 1.0f) * (scene.screen.height / 2.0f));
+            p.p_x = static_cast<int>((p.ndc.x * oneOverW + 1.0f) * (scene.screen.width / 2.0f)+ 0.5f);
+            p.p_y = static_cast<int>((p.ndc.y * oneOverW + 1.0f) * (scene.screen.height / 2.0f)+ 0.5f);
             p.p_z = p.ndc.z * oneOverW;
         }
 	};
