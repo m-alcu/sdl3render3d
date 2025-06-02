@@ -22,6 +22,44 @@ void Scene::torusInit() {
 
 }
 
+void Scene::amigaInit() {
+
+    clearAllSolids();
+    auto amiga = std::make_unique<Amiga>();
+    amiga->setup(16, 32);
+
+    amiga->position.z = -500;
+    amiga->position.x = 0;
+    amiga->position.y = 0;
+    amiga->position.zoom = 100.0f;
+    amiga->position.xAngle = 0.0f;
+    amiga->position.yAngle = 0.0f;
+    amiga->position.zAngle = 0.0f;
+    amiga->shading = Shading::Flat;
+    
+    addSolid(std::move(amiga));
+
+}
+
+void Scene::worldInit() {
+
+    clearAllSolids();
+    auto world = std::make_unique<World>();
+    world->setup(16, 32);
+
+    world->position.z = -500;
+    world->position.x = 0;
+    world->position.y = 0;
+    world->position.zoom = 100.0f;
+    world->position.xAngle = 0.0f;
+    world->position.yAngle = 0.0f;
+    world->position.zAngle = 0.0f;
+    world->shading = Shading::TexturedGouraud;
+    
+    addSolid(std::move(world));
+
+}
+
 void Scene::tetrakisInit() {
 
     clearAllSolids();
@@ -122,7 +160,13 @@ void Scene::setup() {
             break;   
         case SceneType::STAR:
             starInit();
-            break;         
+            break;    
+        case SceneType::AMIGA:
+            amigaInit();
+            break;    
+        case SceneType::WORLD:
+            worldInit();
+            break; 
         default:
             tetrakisInit();
             break;

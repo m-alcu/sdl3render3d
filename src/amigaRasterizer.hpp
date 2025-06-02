@@ -6,6 +6,8 @@
 #include "rasterizer.hpp"
 #include "objects/tetrakis.hpp"
 #include "objects/torus.hpp"
+#include "objects/amiga.hpp"
+#include "objects/world.hpp"
 #include "objects/test.hpp"
 #include "objects/cube.hpp"
 #include "objects/ascLoader.hpp"
