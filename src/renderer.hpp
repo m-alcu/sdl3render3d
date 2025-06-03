@@ -70,7 +70,7 @@ class Renderer {
         
             //float zNear = 0.1f; // Near plane distance
             //float zFar  = 10000.0f; // Far plane distance
-            float aspectRatio = scene.screen.width / scene.screen.height; // Width / Height ratio
+            float aspectRatio = (float) scene.screen.width / scene.screen.height; // Width / Height ratio
             float fovRadians = viewAngle * (PI / 180.0f);
         
             scene.projectionMatrix = smath::perspective(zFar, zNear, aspectRatio, fovRadians);

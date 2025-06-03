@@ -38,11 +38,16 @@ void World::loadVertices(int lat, int lon) {
             float x = sinf(theta) * cosf(phi);
             float y = cosf(theta);
             float z = sinf(theta) * sinf(phi);
-            World::vertexData[i * (lon + 1) + j].vertex = { x, y, z };
+            if (j == lon) {
+                World::vertexData[i * (lon + 1) + j].vertex = World::vertexData[i * (lon + 1) + j - lon].vertex;
+            } else {
+                World::vertexData[i * (lon + 1) + j].vertex = { x, y, z };
+            }
+
 
             // Ensure texture wraps by duplicating the last column with u = 1.0 when j == lon
             float u = (j == lon) ? 1.0f : phi / (2 * PI);
-            float v = theta / PI;
+            float v = (i == lat) ? 1.0f : theta / PI;
             World::vertexData[i * (lon + 1) + j].texCoord = { u, v };
 
         }
