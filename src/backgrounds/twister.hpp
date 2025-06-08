@@ -16,6 +16,7 @@ class Twister : public Background {
     private:
 
         slib::texture tex;
+        slib::texture tex2;
         bool texLoaded = false; // Flag to check if texture is loaded
         float theta = 0.0f; // Angle for the twister effect
 

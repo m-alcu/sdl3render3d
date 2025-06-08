@@ -59,7 +59,7 @@ void Twister::rasterScan(uint32_t* pixels, int pitch, int v, float* x, const sli
     }
 
     for (int i = 0; i < 4; ++i) {
-        x[i] = x[i] / 4.0f + 0.5f;
+        x[i] = x[i] / 8.0f + 0.75f;
         x[i] *= width;
     }
 
@@ -75,16 +75,43 @@ void Twister::draw(uint32_t *pixels, uint16_t height, uint16_t width) {
 
     if (!texLoaded) {
         // Load the texture from a file
-        tex = DecodePng("resources/Honey2_Dark.png");
+        tex = DecodePng("resources/Honey2_Light.png");
         if (tex.data.empty()) {
             std::cerr << "Failed to load texture for Twister background." << std::endl;
             return;
         }
+        // Load the texture from a file
+        tex2 = DecodePng("resources/Honey2_Dark.png");
+        if (tex.data.empty()) {
+            std::cerr << "Failed to load texture for Twister background." << std::endl;
+            return;
+        }
+
         texLoaded = true; // Set the flag to true after loading the texture
     }
 
 
-    std::fill_n(pixels, width * height, 0);
+    // Now we have image (RGBA 8bit data), img_width, img_height
+    // Fill the destination buffer
+    for (uint16_t y = 0; y < height; ++y) {
+        for (uint16_t x = 0; x < width; ++x) {
+
+            // Repeat or clip the image as required
+            unsigned src_x = (x < tex2.w) ? x : (x % tex2.w);
+            unsigned src_y = (y < tex2.h) ? y : (y % tex2.h);
+
+            // Index into the source image (RGBA, so 4 bytes per pixel)
+            size_t src_index = (src_y * tex.w + src_x) * 4;
+
+            uint8_t r = tex2.data[src_index + 0] >> 2;
+            uint8_t g = tex2.data[src_index + 1] >> 2;
+            uint8_t b = tex2.data[src_index + 2] >> 2;
+            uint8_t a = tex2.data[src_index + 3];
+
+            // You can choose any pixel format. Let's use ARGB here.
+            pixels[y * width + x] = (a << 24) | (r << 16) | (g << 8) | b;
+        }
+    }
     
     float vamp = 0.0f;
     float roto = 0.0f;
