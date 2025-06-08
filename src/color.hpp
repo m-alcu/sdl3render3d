@@ -1,5 +1,7 @@
 #pragma once
 #include <cstdint>
+#include <cmath>
+#include <algorithm>
 #include "slib.hpp"
 
 class Color : public slib::vec3 {

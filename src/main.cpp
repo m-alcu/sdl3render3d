@@ -36,14 +36,14 @@ int main(int, char**)
         return -1;
     }
 
-    int width = 1280;
-    int height = 720;
+    int width = 640;
+    int height = 480;
 
     Renderer solidRenderer;
 
     // Create window with SDL_Renderer graphics context
     SDL_WindowFlags window_flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_HIGH_PIXEL_DENSITY;
-    SDL_Window* window = SDL_CreateWindow("Dear ImGui SDL3+SDL_Renderer example", width, height, window_flags);
+    SDL_Window* window = SDL_CreateWindow("Dear ImGui SDL3+SDL_Renderer example", width * 2, height * 2, window_flags);
     if (window == nullptr)
     {
         printf("Error: SDL_CreateWindow(): %s\n", SDL_GetError());
@@ -102,7 +102,7 @@ int main(int, char**)
     scene.camera.yaw = 0;
     scene.setup();
 
-    float zNear = 100.0f; // Near plane distance
+    float zNear = 10.0f; // Near plane distance
     float zFar  = 10000.0f; // Far plane distance
     float viewAngle = 45.0f; // Field of view angle in degrees    
 
@@ -110,7 +110,7 @@ int main(int, char**)
 
     // Backgroud
     Uint32* back = new Uint32[width * height];
-    auto background = BackgroundFactory::createBackground(backgroundType);
+    auto background = std::unique_ptr<Background>(BackgroundFactory::createBackground(backgroundType));
     background->draw(back, height, width);
 
     static float mouseSensitivity = 1.0f;
@@ -205,8 +205,7 @@ int main(int, char**)
             if (ImGui::Combo("Background", &currentBackground, backgroundNames, IM_ARRAYSIZE(backgroundNames))) {
                 // Update the enum value when selection changes
                 backgroundType = static_cast<BackgroundType>(currentBackground);
-                auto background = BackgroundFactory::createBackground(backgroundType);
-                background->draw(back, height, width);
+                background = BackgroundFactory::createBackground(backgroundType);
             } 
 
             int currentScene = static_cast<int>(scene.sceneType);
@@ -220,6 +219,7 @@ int main(int, char**)
             ImGui::End();
         }
 
+        background->draw(back, height, width);
         solidRenderer.drawScene(scene, zNear, zFar, viewAngle, back);
 
         // Rendering

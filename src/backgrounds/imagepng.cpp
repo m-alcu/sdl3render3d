@@ -4,6 +4,10 @@
 
 void Imagepng::draw(uint32_t *pixels, uint16_t high_in, uint16_t width_in) {
 
+    if (!getNeedsUpdate()) {
+        return; // No need to update if not required
+    }
+
     std::vector<unsigned char> buffer;
     std::vector<unsigned char> image; // the raw pixels
     lodepng::load_file(buffer, "resources/PCwKbU.png");
@@ -44,5 +48,7 @@ void Imagepng::draw(uint32_t *pixels, uint16_t high_in, uint16_t width_in) {
             pixels[y * width_in + x] = (a << 24) | (r << 16) | (g << 8) | b;
         }
     }
+
+    setNeedsUpdate(false);
 
 }

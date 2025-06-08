@@ -35,16 +35,14 @@ void World::loadVertices(int lat, int lon) {
         float theta = i * PI / lat;
         for (int j = 0; j <= lon; j++) {
             float phi = j * 2 * PI / lon;
-            float x = sinf(theta) * cosf(phi);
-            float y = cosf(theta);
-            float z = sinf(theta) * sinf(phi);
             if (j == lon) {
                 World::vertexData[i * (lon + 1) + j].vertex = World::vertexData[i * (lon + 1) + j - lon].vertex;
             } else {
+                float x = sinf(theta) * cosf(phi);
+                float y = cosf(theta);
+                float z = sinf(theta) * sinf(phi);
                 World::vertexData[i * (lon + 1) + j].vertex = { x, y, z };
             }
-
-
             // Ensure texture wraps by duplicating the last column with u = 1.0 when j == lon
             float u = (j == lon) ? 1.0f : phi / (2 * PI);
             float v = (i == lat) ? 1.0f : theta / PI;
@@ -79,7 +77,7 @@ void World::loadFaces(int lat, int lon) {
     material.Ks = { properties.k_s * 0xff, properties.k_s * 0xff, properties.k_s * 0xff };
     material.Ns = properties.shininess;
     material.map_Kd = DecodePng(std::string(RES_PATH + mtlPath).c_str());
-    material.map_Kd.textureFilter = slib::TextureFilter::NEIGHBOUR;
+    material.map_Kd.textureFilter = slib::TextureFilter::BILINEAR;
     materials.insert({"red", material});
 
     material.Ka = { properties.k_a * 0x00, properties.k_a * 0x00, properties.k_a * 0x00 };
@@ -87,7 +85,7 @@ void World::loadFaces(int lat, int lon) {
     material.Ks = { properties.k_s * 0xff, properties.k_s * 0xff, properties.k_s * 0xff };
     material.Ns = properties.shininess;
     material.map_Kd = DecodePng(std::string(RES_PATH + mtlPath).c_str());
-    material.map_Kd.textureFilter = slib::TextureFilter::NEIGHBOUR;
+    material.map_Kd.textureFilter = slib::TextureFilter::BILINEAR;
     materials.insert({"white", material});  
 
 for (int i = 0; i < lat; i++) {

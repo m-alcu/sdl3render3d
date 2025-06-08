@@ -26,6 +26,11 @@ void Desert::calcPalette(uint32_t *palette) {
 
 void Desert::draw(uint32_t *pixels, uint16_t height, uint16_t width) {
 
+    if (!getNeedsUpdate()) {
+        return; // No need to update if not required
+    }
+
+
     seed1 = 0x1234;
     seed2 = 0x2293;
     uint8_t* greys = new uint8_t[width * height];
@@ -59,6 +64,8 @@ void Desert::draw(uint32_t *pixels, uint16_t height, uint16_t width) {
         greys[point] = grey;
         pixels[point] = desertPalette[grey];
     }
+
+    setNeedsUpdate(false);
 
     delete[] desertPalette;
     delete[] greys;
