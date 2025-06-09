@@ -1,52 +1,15 @@
 {
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "type": "shell",
-            "label": "SDL3",
-            "command": "C:/msys64/ucrt64/bin/g++.exe",
-            "args": [
-                "-g",
-                "src\\main.cpp",
-                "src\\backgrounds\\backgroundFactory.cpp",
-                "src\\backgrounds\\desert.cpp",
-                "src\\backgrounds\\imagepng.cpp",
-                "src\\backgrounds\\twister.cpp",
-                "src\\objects\\solid.cpp",
-                "src\\objects\\cube.cpp",  
-                "src\\objects\\test.cpp", 
-                "src\\objects\\tetrakis.cpp", 
-                "src\\objects\\torus.cpp",  
-                "src\\objects\\amiga.cpp",  
-                "src\\objects\\world.cpp",
-                "src\\objects\\ascLoader.cpp", 
-                "src\\objects\\objLoader.cpp", 
-                "src\\slib.cpp",
-                "src\\smath.cpp",
-                "src\\scene.cpp",
-                "src\\vendor\\lodepng\\lodepng.cpp",
-                "src\\vendor\\imgui\\imgui_impl_sdlrenderer3.cpp",
-                "src\\vendor\\imgui\\imgui_tables.cpp",
-                "src\\vendor\\imgui\\imgui_widgets.cpp",
-                "src\\vendor\\imgui\\imgui.cpp",
-                "src\\vendor\\imgui\\imgui_draw.cpp",
-                "src\\vendor\\imgui\\imgui_impl_sdl3.cpp",
-                "-o",
-                "build\\example_sdl3_sdlrenderer3.exe",
-                "-IC:/tools/SDL3-3.2.14/x86_64-w64-mingw32/include",
-                "-LC:/tools/SDL3-3.2.14/x86_64-w64-mingw32/lib",
-                "-lmingw32",
-                "-lSDL3",
-                "-mwindows",
-                "-fopenmp",
-                "-std=c++20"            ],
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": "build"
-        }
-    ]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "SDL3-Makefile",
+      "type": "shell",
+      "command": "mingw32-make",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": ["$gcc"]
+    }
+  ]
 }

@@ -121,7 +121,7 @@ void Twister::draw(uint32_t *pixels, uint16_t height, uint16_t width) {
 
         // Periodic variation over height (v), like a sine wave from top to bottom
         float phaseOffset = std::sin(fv * 10.0f + theta) * 0.5f;   // 10.0 = freq, 1.0 = phase depth
-        float amplitude    = 0.90f + 0.10f * std::sin(fv * 6.0f + theta * 1.5f); // 6.0 = vertical cycles, 0.25 = how much amplitude changes
+        float amplitude    = 0.90f + 0.10f * std::sin(fv * 6.0f + theta * 1.5f); // 6.0 = vertical cycles, 0.10 = how much amplitude changes
 
         float x[4];
         for (int i = 0; i < 4; ++i) {
@@ -134,7 +134,6 @@ void Twister::draw(uint32_t *pixels, uint16_t height, uint16_t width) {
     }
 
     theta += 0.035f;
-
 
     setNeedsUpdate(true);
 

@@ -5,7 +5,7 @@
             "name": "(gdb)",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}\\build\\example_sdl3_sdlrenderer3.exe",
+            "program": "${workspaceFolder}\\build\\demo.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -20,7 +20,7 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "SDL3"
+            "preLaunchTask": "SDL3-Makefile"
         }
     ]
 }
