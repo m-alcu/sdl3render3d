@@ -3,7 +3,6 @@
 #include <iostream>
 #include <cstdint>
 #include <cmath>
-#include "rasterizer.hpp"
 #include "objects/tetrakis.hpp"
 #include "objects/torus.hpp"
 #include "objects/amiga.hpp"
