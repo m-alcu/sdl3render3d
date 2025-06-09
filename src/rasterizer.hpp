@@ -3,14 +3,6 @@
 #include <iostream>
 #include <cstdint>
 #include <cmath>
-#include "objects/tetrakis.hpp"
-#include "objects/torus.hpp"
-#include "objects/amiga.hpp"
-#include "objects/world.hpp"
-#include "objects/test.hpp"
-#include "objects/cube.hpp"
-#include "objects/ascLoader.hpp"
-#include "objects/objLoader.hpp"
 #include "scene.hpp"
 #include "slib.hpp"
 #include "smath.hpp"

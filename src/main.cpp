@@ -17,7 +17,6 @@
 #include <SDL3/SDL.h>
 #include "backgrounds/background.hpp"
 #include "backgrounds/backgroundFactory.hpp"
-#include "rasterizer.hpp"
 #include "renderer.hpp"
 #include "scene.hpp"
 

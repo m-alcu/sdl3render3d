@@ -1,7 +1,6 @@
 #include <iostream>
 #include <math.h>
-#include "rasterizer.hpp"
-
+#include "scene.hpp"
 
 void Scene::torusInit() {
 

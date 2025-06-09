@@ -6,6 +6,14 @@
 #include <cstdint>   // for uint32_t
 
 #include "objects/solid.hpp"
+#include "objects/tetrakis.hpp"
+#include "objects/torus.hpp"
+#include "objects/amiga.hpp"
+#include "objects/world.hpp"
+#include "objects/test.hpp"
+#include "objects/cube.hpp"
+#include "objects/ascLoader.hpp"
+#include "objects/objLoader.hpp"
 #include "smath.hpp"
 #include "slib.hpp"
 #include "ZBuffer.hpp"
