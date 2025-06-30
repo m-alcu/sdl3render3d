@@ -284,7 +284,8 @@ class AmigaRasterizer {
         
         void drawAmiga(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color, uint32_t* pixels) {
             int x,y;
-            int16_t line[scene->screen.height*2];
+
+            std::vector<int> line(2 * scene->screen.height);
             for(y=0;y<scene->screen.height;y++) { line[2*y+0] = scene->screen.width+1; line[2*y+1] = -1; }
 
             rasterizeAmiga( x0, y0, x1, y1, line);
