@@ -288,9 +288,9 @@ class AmigaRasterizer {
             std::vector<int> line(2 * scene->screen.height);
             for(y=0;y<scene->screen.height;y++) { line[2*y+0] = scene->screen.width+1; line[2*y+1] = -1; }
 
-            rasterizeAmiga( x0, y0, x1, y1, line);
-            rasterizeAmiga( x1, y1, x2, y2, line);
-            rasterizeAmiga( x2, y2, x0, y0, line);
+            rasterizeAmiga( x0, y0, x1, y1, line.data());
+            rasterizeAmiga( x1, y1, x2, y2, line.data());
+            rasterizeAmiga( x2, y2, x0, y0, line.data());
 
             for(y=0;y<scene->screen.height;y++)
                 if(line[2*y+1]>line[2*y+0]) for(x=line[2*y+0]; x<=line[2*y+1]; x++) pixels[scene->screen.width*y+x] = color;
